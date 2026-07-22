@@ -1,13 +1,15 @@
 
 # ANALYSIS OF THE AUSTRALIAN "BLACK SUMMER" WILDFIRES (2019-2020) 
 
-# 1. LOADING NECESSARY LIBRARIES 
+# ANALYSIS OF THE AUSTRALIAN "BLACK SUMMER" WILDFIRES (2019-2020) 
+
+# LOADING NECESSARY LIBRARIES 
 library(terra)      # For raster handling and satellite spatial data
 library(ggplot2)    # For statistical graphics and bar charts
 library(reshape2)   # For tabular data restructuring
 library(viridis)    # For scientific, colorblind-friendly palettes
 
-# 2.SETTING WORKING DIRECTORY & IMPORTING RAW SATELLITE BANDS 
+#SETTING WORKING DIRECTORY & IMPORTING RAW SATELLITE BANDS 
 setwd("C:/Users/lenovo/Desktop/exam_R")
 
 #Import pre-fire/post-fire bands and combine single bands into a multi-layer raster object
@@ -25,6 +27,15 @@ b12_post <- rast("2020-03-30-00_00_2020-03-30-23_59_Sentinel-2_L2A_B12_(Raw).tif
 post <- c(b4_post, b8_post, b12_post)
 names(post) <- c("B04", "B08", "B12")
 
+par(mfrow = c(2, 3))
+plot(b4_pre, main="Pre-fire B04")
+plot(b8_pre,main="Pre-fire B08")
+plot(b12_pre,main="Pre-fire B12")
+plot(b4_post,main="Post-fire B04")
+plot(b8_post,main="Pre-fire B08")
+plot(b12_post,main="Pre-fire B12")
+
+
 #Visual of bands in False Color (B12 = SWIR2, B08 = NIR, B04 = RED)
 par(mfrow = c(1, 2))
 plotRGB(pre, r = 3, g = 2, b = 1, stretch = "lin", main = "Pre-Fire False Color (Nov 2019)")
@@ -32,43 +43,47 @@ plotRGB(post, r = 3, g = 2, b = 1, stretch = "lin", main = "Post-Fire False Colo
 dev.off()
 
 
-# 3.COMPUTING SPECTRAL VEGETATION AND BURN INDICES 
+#COMPUTING SPECTRAL VEGETATION AND BURN INDICES 
 
 #NBR (Normalized Burn Ratio): (NIR - SWIR2) / (NIR + SWIR2) -> Highlights burned areas
 nbr_pre  <- (pre[["B08"]] - pre[["B12"]]) / (pre[["B08"]] + pre[["B12"]])
 nbr_post <- (post[["B08"]] - post[["B12"]]) / (post[["B08"]] + post[["B12"]])
 dnbr     <- nbr_pre - nbr_post
 
-par(mfrow = c(1, 3))
-plot(nbr_pre, main = "NBR Pre-Fire", col = viridis(100))
-plot(nbr_post, main = "NBR Post-Fire", col = viridis(100))
-plot(dnbr, main = "dNBR (Burn Severity)", col = inferno(100))
+par(mfrow = c(1, 2))
+plot(nbr_pre, main = "NBR Pre fire", col = viridis(100))
+plot(nbr_post, main = "NBR Post fire", col = viridis(100))
 dev.off()
+plot(dnbr, main = "ΔNBR", col = inferno(100))
+
 
 #DVI (Difference Vegetation Index): NIR - RED  (absolute vegetation biomass quantity)
 dvi_pre  <- pre[["B08"]] - pre[["B04"]]
 dvi_post <- post[["B08"]] - post[["B04"]]
 ddvi     <- dvi_pre - dvi_post
 
-par(mfrow = c(1, 3))
+par(mfrow = c(1, 2))
 plot(dvi_pre, main = "DVI Pre-Fire", col = viridis(100))
 plot(dvi_post, main = "DVI Post-Fire", col = viridis(100))
-plot(ddvi, main = "ΔDVI", col = inferno(100))
+
 dev.off()
+plot(ddvi, main = "ΔDVI", col = inferno(100))
+
 
 #NDVI (Normalized Difference Vegetation Index):(NIR - RED) / (NIR + RED) (vegetation health status)
 ndvi_pre  <- (pre[["B08"]] - pre[["B04"]]) / (pre[["B08"]] + pre[["B04"]])
 ndvi_post <- (post[["B08"]] - post[["B04"]]) / (post[["B08"]] + post[["B04"]])
 dndvi     <- ndvi_pre - ndvi_post
 
-par(mfrow = c(1, 3))
+par(mfrow = c(1, 2))
 plot(ndvi_pre, main = "NDVI Pre-Fire", col = viridis(100))
 plot(ndvi_post, main = "NDVI Post-Fire", col = viridis(100))
-plot(dndvi, main = "ΔNDVI", col = inferno(100))
 dev.off()
+plot(dndvi, main = "ΔNDVI", col = inferno(100))
 
 
-# 4.LAND COVER CLASSIFICATION AND PERCENTAGE QUANTIFICATION 
+
+#LAND COVER CLASSIFICATION AND PERCENTAGE QUANTIFICATION 
 
 #Threshold matrix definition for NDVI classification:
 # < 0.1       = NA (Masks out ocean/clouds)
@@ -88,43 +103,35 @@ classi_post <- classify(ndvi_post, reclass_matrix)
 
 # Visualizing classified maps
 par(mfrow = c(1, 2))
-plot(classi_pre, main = "NDVI Classes Pre-Fire", col = c("red", "darkgreen"))
-plot(classi_post, main = "NDVI Classes Post-Fire", col = c("red", "darkgreen"))
+plot(classi_pre, main = "NDVI Classes Pre-Fire", col = c("purple", "lightgreen"))
+plot(classi_post, main = "NDVI Classes Post-Fire", col = c("purple", "lightgreen"))
 dev.off()
 
 #Frequency 
 freq_pre  <- freq(classi_pre)
 freq_post <- freq(classi_post)
 
-#Extract pixel counts safely
-count_pre_veg  <- ifelse(1 %in% freq_pre$value, freq_pre[freq_pre$value == 1, "count"], 0)
-count_pre_burn <- ifelse(0 %in% freq_pre$value, freq_pre[freq_pre$value == 0, "count"], 0)
 
-count_post_veg  <- ifelse(1 %in% freq_post$value, freq_post[freq_post$value == 1, "count"], 0)
-count_post_burn <- ifelse(0 %in% freq_post$value, freq_post[freq_post$value == 0, "count"], 0)
+perc_pre <-freq_pre$count *100/ncell(classi_pre)
+perc_post <-freq_post$count*100/ncell(classi_post)
 
-#Total land surface pixels
-tot_land_pre  <- count_pre_veg + count_pre_burn
-tot_land_post <- count_post_veg + count_post_burn
 
-#Percentages
-perc_pre_veg  <- (count_pre_veg / tot_land_pre) * 100
-perc_pre_burn <- (count_pre_burn / tot_land_pre) * 100
-
-perc_post_veg  <- (count_post_veg / tot_land_post) * 100
-perc_post_burn <- (count_post_burn / tot_land_post) * 100
 
 #Summary Data Frame
 summary_table <- data.frame(
   Class        = c("Burned / Bare Soil", "Healthy Vegetation"),
-  Pre_Fire     = round(c(perc_pre_burn, perc_pre_veg), 2),
-  Post_Fire    = round(c(perc_post_burn, perc_post_veg), 2)
+  Pre_Fire     = round(perc_pre , 2),
+  Post_Fire    = round(perc_post, 2)
 )
 
 print(summary_table)
+# Istogram 
+par(mfrow = c(1, 2))
+hist(ndvi_pre, main = "NDVI Distribution Pre-Fire", col = "lightgreen", xlab = "NDVI")
+hist(ndvi_post, main = "NDVI Distribution Post-Fire", col = "purple", xlab = "NDVI")
+dev.off()
 
-
-# 5.COMPARATIVE BAR CHART WITH GGPLOT2 
+#COMPARATIVE BAR CHART WITH GGPLOT2 
 
 df_long <- melt(summary_table, id.vars = "Class", 
                 variable.name = "Period", 
@@ -135,11 +142,10 @@ ggplot(df_long, aes(x = Class, y = Percentage, fill = Period)) +
   geom_text(aes(label = round(Percentage, 1)), 
             position = position_dodge(width = 0.9), 
             vjust = -0.25, size = 3.5) + 
-  scale_fill_manual(values = c("Pre_Fire" = "darkorchid4", 
-                               "Post_Fire" = "yellow")) + 
+  scale_fill_manual(values = c("Pre_Fire" = "lightblue", 
+                               "Post_Fire" = "orange")) + 
   ylim(0, 100) + 
-  labs(title = "Land Surface Vegetation Dynamics (Australian Black Summer)", 
-       subtitle = "Percentage comparison of vegetation cover before and after the fires", 
+  labs(title = "Comparison of vegetation cover before and after the fires", 
        y = "Percentage (%)", x = "Class") + 
   theme_minimal()
 
