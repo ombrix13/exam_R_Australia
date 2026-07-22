@@ -90,7 +90,7 @@ By combining Short-Wave Unfrared (red), Near-Infrared (green), and Red bands (bl
 
 </details>
 <details>
-  <summary><h2>Spectral Indices Computation</h2></summary>
+  <summary><h2>Spectral indices computation</h2></summary>
 
 
    
@@ -125,6 +125,8 @@ plot(dnbr, main = "ΔNBR (Burn Severity)", col = inferno(100))
 
 High positive values in $\Delta\text{NBR}$ (bright yellow/orange regions) locate zones of high burn severity where vegetation canopy was consumed by fire.
 
+---
+
 ### Difference Vegetation Index (DVI)
 
 The DVI evaluates absolute vegetative biomass without normalization by calculating the simple difference between the Near-Infrared and Red bands.
@@ -152,6 +154,8 @@ plot(ddvi, main = "ΔDVI", col = inferno(100))
 </p>
 
 High positive values in $\Delta\text{DVI}$ (bright yellow/orange regions) locate zones of severe biomass loss where the forest canopy was destroyed by fire.
+
+---
 
 ### Normalized Difference Vegetation Index (NDVI)
 
@@ -199,9 +203,10 @@ The pre-fire histogram shows a dense cluster of high NDVI values concentrated be
 
 
 <details>
-  <summary><h2>Classification & statistical Quantification</h2></summary>
-  
-A threshold classification matrix was applied to enable an exact numerical comparison of surviving and destroyed vegetation and also to isolate land surface dynamics from water bodies or clouds:
+  <summary><h2>Classification & statistical quantification</h2></summary>
+
+### Classification  
+A threshold classification matrix was applied to enable an exact comparison of surviving and destroyed vegetation and also to isolate land surface dynamics from water bodies or clouds:
   
 * $NDVI < 0.1 \rightarrow NA$ (Excludes water/ocean bodies and non-land pixels)
 * $0.1 \le NDVI \le 0.55 \rightarrow \mathbf{0}$ (Burned Area / Bare Soil / Low Vigor Vegetation - **Purple**)
@@ -232,7 +237,8 @@ dev.off()
 The pre-fire classified map is almost entirely dominated by class 1 (light green), indicating a continuous and healthy dense forest canopy. In contrast, the post-fire map shows a massive spatial expansion of class 0 (purple), providing clear visual evidence of widespread canopy destruction, severe burning, and exposure of bare soil across the landscape.
 
 ---
-Pixel counts and percentages for each class were computed, to provide a quantitative breakdown of land cover distribution. Finally, theese metrics were compiled into a clean comparative data frame to evaluate the environmental shift between pre-fire and post-fire states.
+### Statistical quantification
+Pixel counts and percentages for each class were computed, to provide *a quantitative breakdown* of land cover distribution. Finally, theese metrics were compiled into a clean comparative data frame to evaluate the environmental shift between pre-fire and post-fire states.
 
 ```r
 # Frequency calculation
@@ -274,14 +280,10 @@ print(summary_table)
 2 Healthy Vegetation    98.15     54.46
 
 ```
+---
 
-</details>
-<details> 
-   <summary><h2>Visualization of results </h2></summary>
-
-A comparative bar chart was built using ggplot2 to evaluate changes in land cover class percentages:
+A comparative bar chart was built using ggplot2 to visually assess the percentage changes in land cover classes across the landscape
 ```r
- #COMPARATIVE BAR CHART WITH GGPLOT2
 
 df_long <- melt(summary_table, id.vars = "Class", 
                 variable.name = "Period", 
@@ -300,11 +302,13 @@ ggplot(df_long, aes(x = Class, y = Percentage, fill = Period)) +
        y = "Percentage (%)", x = "Class") + 
   theme_minimal()
 ```
-![Barchar](img/vegetation_dynamics_barchart.png)
+<p align="center">
+<img src="img/vegetation_dynamics_barchart.png" width="700" >
+</p>
+
 </details>
 
 <details>
    <summary><h2>Conclusions</h2></summary>
-This geo-ecological analysis highlights the environmental impact of the 2019–2020 Australian "Black Summer" wildfires:
-Biomass Loss: Spectral indices ($\text{NDVI}$, $\text{DVI}$, and $\text{NBR}$) showed a significant drop in values across the study region post-fire.Burn Severity Mapping: The $\text{dNBR}$ differential raster precisely identified the spatial footprint and severity of burned forest zones.Quantitative Shift: Threshold classification confirmed a major decrease in healthy forest coverage alongside a proportional expansion of burned/bare ground.Using multi-spectral satellite observations and open-source tools in R allows for rapid damage quantification, proving essential for ecological monitoring and post-fire forest management strategies.
+In conclusion, the remote sensing analysis successfully mapped and quantified the environmental impact of the wildfire. Through the use of vegetation indices and reclassification matrices, it was possible to isolate land surfaces and highlight the dramatic decline in healthy canopy cover. The final numerical data confirm a radical transformation of the landscape, offering a overview of the severity of the ecological disaster experienced by the examined area.
 </details>
