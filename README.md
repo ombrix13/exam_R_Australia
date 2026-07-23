@@ -239,7 +239,7 @@ The pre-fire classified map is almost entirely dominated by class 1 (light green
 Pixel counts and percentages for each class were computed, to provide *a quantitative breakdown* of land cover distribution. Finally, these metrics were compiled into a clean comparative data frame to evaluate the environmental shift between pre-fire and post-fire states.
 
 ```r
-Frequency calculation (how many pixels belong to each category)
+#Frequency calculation (how many pixels belong to each category)
 freq_pre  <- freq(classi_pre)
 freq_post <- freq(classi_post)
 #Percentage coverage of each class
