@@ -1,7 +1,6 @@
-
-# **ANALYSIS OF THE AUSTRALIAN "BLACK SUMMER" (2019–2020)**
-* **Author**: Ombretta Giancaspro
-* **Date**: 22/07/2026
+ # **ANALYSIS OF THE AUSTRALIAN "BLACK SUMMER" (2019–2020)**
+* **Author:** Ombretta Giancaspro
+* **Date:** 22/07/2026
 * **Course:** Spatial Ecology in R  
 
 
@@ -22,7 +21,7 @@ To quantify canopy loss and assess burn severity, three spectral indices were ca
 These indices were used to assess the spatial extent and ecological severity of the fires. 
 * Each index was computed for both timeframes to capture baseline conditions and post-fire conditions.
 * Differential rasters were derived to identified the precise spatial footprint of the fire scars.
-* $\text{NDVI}$ values were used to establish a threshold-based classification matrix to make a categorical separation of unburned healthy forest from severely burned or bare soil areas, allowing for a precise statistical quantification of the total impacted surface area.
+* NDVI values were used to establish a threshold-based classification matrix to make a categorical separation of unburned healthy forest from severely burned or bare soil areas, allowing for a precise statistical quantification of the total impacted surface area.
 </details>
 
 <details>
@@ -35,9 +34,9 @@ The selected study area is part of the forest regions of New South Wales, Austra
 </p>
 
 Satellite imagery was acquired via Copernicus Browser using single spectral bands from Sentinel-2 L2A:
-* **Band 4 (B04 - Red):** $\lambda \approx 665\text{ nm}$
-* **Band 8 (B08 - Near-Infrared / NIR):** $\lambda \approx 842\text{ nm}$
-* **Band 12 (B12 - Short-Wave Infrared / SWIR2):** $\lambda \approx 2190\text{ nm}$
+* **Band 4 (B04 - Red):** $\lambda \approx 665$ nm
+* **Band 8 (B08 - Near-Infrared / NIR):** $\lambda \approx 842$ nm 
+* **Band 12 (B12 - Short-Wave Infrared / SWIR2):** $\lambda \approx 2190$ nm
 
 Two key timeframes:
 * **Pre-fire phase:** November 2019
@@ -97,9 +96,9 @@ By combining Short-Wave Infrared (red), Near-Infrared (green), and Red bands (bl
 
 The NBR uses Near-Infrared (NIR) and Short-Wave Infrared (SWIR2) bands to highlight burned areas by analysing the drop in NIR reflectance and increase in SWIR reflectance caused by wildfires.
 
-<p align="center">$$NBR = \frac{NIR - SWIR2}{NIR + SWIR2}$$</p> 
+<p align="center"> $NBR = \frac{NIR - SWIR2}{NIR + SWIR2}$ </p> 
 
-<p align="center">$$\Delta NBR = NBR_{Pre} - NBR_{Post}$$</p>
+<p align="center"> $\Delta NBR = NBR_{Pre} - NBR_{Post}$ </p>
 
 ```r 
 nbr_pre  <- (pre[["B08"]] - pre[["B12"]]) / (pre[["B08"]] + pre[["B12"]])
@@ -129,9 +128,9 @@ High positive values in $\Delta\text{NBR}$ (yellow and orange regions) locate zo
 ### Difference Vegetation Index (DVI)
 
 The DVI evaluates absolute vegetative biomass without normalization by calculating the simple difference between the Near-Infrared and Red bands by taking advantage of the high reflectance of healthy green leaves in the NIR spectrum and strong absorption in the Red spectrum.
-<p align="center"> $$DVI = NIR - RED$$ </p>
+<p align="center"> $DVI = NIR - RED$ </p>
 
-<p align="center"> $$\Delta DVI = DVI_{Pre} - DVI_{Post}$$ </p>
+<p align="center"> $\Delta DVI = DVI_{Pre} - DVI_{Post}$ </p>
 
 ```r
 dvi_pre  <- pre[["B08"]] - pre[["B04"]]
@@ -159,9 +158,9 @@ High positive values in $\Delta\text{DVI}$ (yellow and orange regions) locate zo
 ### Normalized Difference Vegetation Index (NDVI)
 
 The NDVI uses Near-Infrared and Red bands to measure photosynthetic vigor and monitor vegetation health by taking advantage of the high reflectance of healthy green leaves in the NIR spectrum and strong absorption in the Red spectrum.
-<p align="center"> $$NDVI = \frac{NIR - RED}{NIR + RED}$$ </p>
+<p align="center"> $NDVI = \frac{NIR - RED}{NIR + RED}$ </p>
 
-<p align="center"> $$\Delta NDVI = NDVI_{Pre} - NDVI_{Post}$$ </p>
+<p align="center"> $\Delta NDVI = NDVI_{Pre} - NDVI_{Post}$ </p>
 
 ```r
 ndvi_pre  <- (pre[["B08"]] - pre[["B04"]]) / (pre[["B08"]] + pre[["B04"]])
@@ -208,8 +207,8 @@ The pre-fire histogram shows a dense cluster of high NDVI values concentrated be
 A threshold classification matrix was applied to enable an exact comparison of surviving and destroyed vegetation and also to isolate land surface dynamics from water bodies or clouds:
   
 * $NDVI < 0.1 \rightarrow NA$ (Excludes water bodies and non-land pixels)
-* $0.1 \le NDVI \le 0.55 \rightarrow \mathbf{0}$ (Burned area/ bare soil)
-* $NDVI > 0.55 \rightarrow \mathbf{1}$ (Healthy vegetation)
+* $0.1 \le NDVI \le 0.55 \rightarrow 0$ (Burned area/ bare soil)
+* $NDVI > 0.55 \rightarrow 1$ (Healthy vegetation)
 
 ```r
 soglia_water <- 0.1
